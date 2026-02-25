@@ -150,7 +150,7 @@ flowchart TD
 
 | 首页 (Home) | 医院详情 (Detail) |
 | :---: | :---: |
-| ![首页截图](https://via.placeholder.com/600x337?text=Home+Page+Preview) | ![详情页截图](https://via.placeholder.com/600x337?text=Detail+Page+Preview) |
+| ![首页截图](./screenshots/home.png) | ![详情页截图](./screenshots/detail.png) |
 | *核心：骨架屏加载 + 动态筛选* | *核心：排班表模拟 + 状态联动* |
 
 ## ⚡ 快速开始
