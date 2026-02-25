@@ -51,22 +51,22 @@
 
 ```mermaid
 flowchart TD
-    subgraph ViewLayer [视图层 (Vue 3 Components)]
+    subgraph ViewLayer ["视图层 (Vue 3 Components)"]
         Home[首页] --> Layout[布局容器]
         Detail[医院详情] --> Layout
         User[用户中心] --> Layout
     end
 
-    subgraph StateLayer [状态管理 (Pinia)]
+    subgraph StateLayer ["状态管理 (Pinia)"]
         UserStore[用户状态]
         HospitalStore[医院数据]
         DictStore[字典缓存]
     end
 
-    subgraph DataLayer [数据层 (Frontend Only)]
+    subgraph DataLayer ["数据层 (Frontend Only)"]
         Axios[Axios 请求拦截] --> MockEngine
         MockEngine{Vite Plugin Mock}
-        MockEngine -- 拦截请求 --> LocalData[本地 Mock 数据 (mock/hospital.ts)]
+        MockEngine -- 拦截请求 --> LocalData["本地 Mock 数据 (mock/hospital.ts)"]
         MockEngine -- 放行静态资源 --> StaticAssets[静态资源]
     end
 
