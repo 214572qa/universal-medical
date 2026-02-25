@@ -1,8 +1,100 @@
 // @ts-ignore
 import Mock from 'mockjs';
 
+// 定义 Mock 请求接口类型
+interface MockRequest {
+  url: string;
+  body: any;
+  query: any;
+  params: any;
+  headers?: any;
+}
+
 // 订单状态内存存储，用于模拟持久化状态
 const orderStatusStore: Record<string, number> = {};
+
+// 统一的固定用户信息，确保登录和个人中心显示一致
+let fixedUser = {
+  name: '郑超',
+  nickName: '超哥',
+  phone: '13800138000',
+  token: 'mock-token-zhengchao-2024',
+  avatar: '',
+  certificatesType: '身份证',
+  certificatesNo: '110101199001011234',
+  authStatus: 1, // 已认证
+  status: 1      // 正常
+};
+
+// ==================== 就诊人数据存储 ====================
+let patientList: any[] = [
+  {
+    id: 1,
+    createTime: '2023-01-01 10:00:00',
+    updateTime: '2023-01-01 10:00:00',
+    isDeleted: 0,
+    userId: 10001,
+    name: '张三',
+    certificatesType: '10',
+    certificatesNo: '110101199001011234',
+    phone: '13800138000',
+    sex: 1,
+    birthdate: '1990-01-01',
+    isMarry: 0,
+    provinceCode: '110000',
+    cityCode: '110100',
+    districtCode: '110101',
+    address: '北京市东城区长安街1号',
+    contactsName: '李四',
+    contactsCertificatesType: '10',
+    contactsCertificatesNo: '110101199001015678',
+    contactsPhone: '13900139000',
+    isInsure: 0,
+    cardNo: null,
+    status: '1',
+    param: {
+      certificatesTypeString: '身份证',
+      contactsCertificatesTypeString: '身份证',
+      cityString: '北京市',
+      fullAddress: '北京市东城区长安街1号',
+      districtString: '东城区',
+      provinceString: '北京市'
+    }
+  },
+  {
+      id: 2,
+      createTime: '2023-02-01 12:00:00',
+      updateTime: '2023-02-01 12:00:00',
+      isDeleted: 0,
+      userId: 10001,
+      name: '李四',
+      certificatesType: '20',
+      certificatesNo: '110101199202022345',
+      phone: '13800138001',
+      sex: 0,
+      birthdate: '1992-02-02',
+      isMarry: 1,
+      provinceCode: '310000',
+      cityCode: '310100',
+      districtCode: '310101',
+      address: '上海市黄浦区南京路2号',
+      contactsName: '张三',
+      contactsCertificatesType: '10',
+      contactsCertificatesNo: '110101199001011234',
+      contactsPhone: '13800138000',
+      isInsure: 1,
+      cardNo: null,
+      status: '1',
+      param: {
+        certificatesTypeString: '户口本',
+        contactsCertificatesTypeString: '身份证',
+        cityString: '上海市',
+        fullAddress: '上海市黄浦区南京路2号',
+        districtString: '黄浦区',
+        provinceString: '上海市'
+      }
+    }
+];
 
 // ==================== 城市地址数据 ====================
 // 三级地理层级结构：省 → 市 → 区/县
@@ -476,7 +568,7 @@ const generateMockOrders = () => {
       id: 100000 + i, // 固定ID，从100000开始递增
       orderNo: 'O20240615' + String(1000 + i).padStart(4, '0'),
       hoscode: String(1000 + (i % 500)),
-      hosname: ['风无动医院', '然做团医院', '族县医院', '市王医院', '海华医院'][i % 5],
+      hosname: ['中山大学附属第一医院', '广东省人民医院', '南方医科大学南方医院', '广州市第一人民医院', '广州医科大学附属第一医院'][i % 5],
       depcode: '200040879',
       depname: ['内科', '外科', '儿科', '妇科', '眼科'][i % 5],
       scheduleId: '44000019861003834' + (i % 10),
@@ -505,25 +597,20 @@ const generateMockOrders = () => {
 // 1. 按地区→等级二级分类生成408条模拟数据
 const content: any[] = [];
 
-// 北京17个行政区（含空白区）
+// 广州11个行政区（含空白区）
 const districts = [
-  { code: '110101', name: '东城区' },
-  { code: '110102', name: '西城区' },
-  { code: '110105', name: '朝阳区' },
-  { code: '110106', name: '丰台区' },
-  { code: '110107', name: '石景山区' },
-  { code: '110108', name: '海淀区' },
-  { code: '110109', name: '门头沟区' },
-  { code: '110111', name: '房山区' },
-  { code: '110112', name: '通州区' },
-  { code: '110113', name: '顺义区' },
-  { code: '110114', name: '昌平区' },
-  { code: '110115', name: '大兴区' },
-  { code: '110116', name: '怀柔区' },
-  { code: '110117', name: '平谷区' },
-  { code: '110118', name: '密云区' },
-  { code: '110119', name: '延庆区' },
-  { code: '110199', name: '空白区' } // 空白区
+  { code: '440103', name: '荔湾区' },
+  { code: '440104', name: '越秀区' },
+  { code: '440105', name: '海珠区' },
+  { code: '440106', name: '天河区' },
+  { code: '440111', name: '白云区' },
+  { code: '440112', name: '黄埔区' },
+  { code: '440113', name: '番禺区' },
+  { code: '440114', name: '花都区' },
+  { code: '440115', name: '南沙区' },
+  { code: '440117', name: '从化区' },
+  { code: '440118', name: '增城区' },
+  { code: '440199', name: '空白区' } // 空白区
 ];
 
 // 国家等级标准
@@ -537,20 +624,19 @@ const levels = [
 
 // 生成数据：每区24家医院（空白区0家），总计408家
 let idCounter = 1;
-districts.forEach((district, districtIndex) => {
-  if (district.code === '110199') return; // 跳过空白区
+districts.forEach((district) => {
+  if (district.code === '440199') return; // 跳过空白区
 
-  levels.forEach((level, levelIndex) => {
+  levels.forEach((level) => {
     // 每等级6家医院
     for (let i = 0; i < 6; i++) {
       const hosname = `${district.name}第${i + 1}${level.name}医院`;
-      const logoText = hosname.substring(0, 4);
       const images = [
         '/images/1.png', '/images/2.png', '/images/3.png', '/images/4.png', '/images/5.png',
         '/images/6.png', '/images/7.png', '/images/8.png', '/images/9.png', '/images/10.png',
       ];
       const logoUrl = images[(idCounter - 1) % images.length];
-      const address = `北京市${district.name}${Mock.mock('@cword(2,5)')}路${Mock.mock('@integer(1,999)')}号`;
+      const address = `广州市${district.name}${Mock.mock('@cword(2,5)')}路${Mock.mock('@integer(1,999)')}号`;
       const intro = `${hosname}始建于${Mock.mock('@integer(1900, 2010)')}年，是集医疗、教学、科研于一体的大型综合性${level.name}。医院坐落于${address}，交通便利。作为${district.name}重点建设的医疗机构，拥有床位${Mock.mock('@integer(500, 3000)')}张，年门诊量超过${Mock.mock('@integer(100, 500)')}万人次。`;
 
       content.push(Mock.mock({
@@ -559,13 +645,13 @@ districts.forEach((district, districtIndex) => {
         'hosname': hosname,
         'name': hosname,
         'hostype': level.value,
-        'provinceCode': '110000',
-        'cityCode': '110100',
+        'provinceCode': '440000',
+        'cityCode': '440100',
         'districtCode': district.code,
         'address': address,
         'logoData': logoUrl,
         'intro': intro,
-        'route': '乘车路线：乘坐地铁${Mock.mock("@integer(1,15)")}号线至${district.name}站下车，步行约${Mock.mock("@integer(200,800)")}米即到。',
+        'route': `乘车路线：乘坐地铁${Mock.mock("@integer(1,9)")}号线至${district.name}站下车，步行约${Mock.mock("@integer(200,800)")}米即到。`,
         'status|0-1': 1,
         'bookingRule': {
           'cycle|1-30': 7,
@@ -601,7 +687,7 @@ export default [
   {
     url: /\/api\/cmn\/dict\/findByParentId\/(.+)/,
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       // 从 URL 中提取 parentId
       const url = req.url || '';
       const match = url.match(/\/api\/cmn\/dict\/findByParentId\/(.+?)(?:\?|$)/);
@@ -638,7 +724,7 @@ export default [
   {
     url: '/api/hosp/hospital/findByHosname/:hosname',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const hosname = (req.query.hosname || (req.params && req.params.hosname) || '').trim();
       let list: any[] = [];
       if (hosname) {
@@ -647,8 +733,8 @@ export default [
         const byDistrict = matchedDistricts.length
           ? data.content.filter(item => matchedDistricts.some(md => item.districtCode === md.code))
           : [];
-        const byCity = hosname.includes('北京')
-          ? data.content.filter(item => item.cityCode === '110100' || item.provinceCode === '110000')
+        const byCity = hosname.includes('广州')
+          ? data.content.filter(item => item.cityCode === '440100' || item.provinceCode === '440000')
           : [];
         const merged = [...byHosname, ...byDistrict, ...byCity];
         const seen = new Set<number>();
@@ -671,7 +757,7 @@ export default [
   {
     url: '/api/cmn/dict/findByDictCode/:dictCode',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const dictCode = req.query.dictCode || (req.params && req.params.dictCode);
       let list: any[] = [];
 
@@ -688,17 +774,17 @@ export default [
           dictCode: 'HosType',
           hasChildren: false
         }));
-      } else if (dictCode === 'Beijin') {
+      } else if (dictCode === 'Guangzhou' || dictCode === 'Beijin') {
         list = districts.map(d => ({
           id: d.code,
           createTime: '2021-01-01 00:00:00',
           updateTime: '2021-01-01 00:00:00',
           isDeleted: 0,
           param: {},
-          parentId: '110000',
+          parentId: '440000',
           name: d.name,
           value: d.code,
-          dictCode: 'Beijin',
+          dictCode: dictCode,
           hasChildren: false
         }));
       } else if (dictCode === 'CertificatesType') {
@@ -735,7 +821,7 @@ export default [
   {
     url: '/api/hosp/hospital/getSchedule/:scheduleId',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const scheduleId = req.params?.scheduleId;
       const docId = scheduleId || Mock.mock('@id');
       const title = Mock.mock('@pick(["主任医师", "副主任医师", "主治医师"])');
@@ -765,7 +851,7 @@ export default [
           param: {
             dayOfWeek: Mock.mock('@pick(["周一", "周二", "周三", "周四", "周五", "周六", "周日"])'),
             depname: '神经内科',
-            hosname: '北京协和医院'
+            hosname: '中山大学附属第一医院'
           }
         }
       };
@@ -776,7 +862,7 @@ export default [
   {
     url: '/api/hosp/hospital/:page/:limit',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       // 获取分页参数
       let page = parseInt(req.query.page || (req.params && req.params.page) || 1);
       let limit = parseInt(req.query.limit || (req.params && req.params.limit) || 10);
@@ -878,7 +964,7 @@ export default [
   {
     url: '/api/hos/hospital/:hoscode',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const hoscode = req.query.hoscode || (req.params && req.params.hoscode);
       const item = data.content.find(it => String(it.hoscode) === String(hoscode));
       if (!item) {
@@ -934,8 +1020,8 @@ export default [
   {
     url: '/api/hos/hospital/department/:hoscode',
     method: 'get',
-    response: (req) => {
-      const hoscode = req.params?.hoscode;
+    response: (req: MockRequest) => {
+      // const hoscode = req.params?.hoscode;
 
       // 根据医院编码生成科室数据，确保数据结构符合 register 页面和 store 的要求
       const departmentData = [
@@ -1115,11 +1201,11 @@ export default [
   {
     url: '/api/hosp/hospital/auth/getBookingScheduleRule/:page/:limit/:hoscode/:depcode',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const page = parseInt(req.params?.page || '1');
       const limit = parseInt(req.params?.limit || '7');
       const hoscode = req.params?.hoscode;
-      const depcode = req.params?.depcode;
+      // const depcode = req.params?.depcode;
 
       // 生成未朆30天的排班日期
       const scheduleList: any[] = [];
@@ -1210,7 +1296,7 @@ export default [
   {
     url: '/api/hosp/hospital/auth/findScheduleList/:hoscode/:depcode/:workDate',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const hoscode = req.params?.hoscode;
       const depcode = req.params?.depcode;
       const workDate = req.params?.workDate;
@@ -1241,7 +1327,7 @@ export default [
           param: {
             dayOfWeek: Mock.mock('@pick(["周一", "周二", "周三", "周四", "周五", "周六", "周日"])'),
             depname: '神经内科',
-            hosname: data.content.find(h => String(h.hoscode) === String(hoscode))?.hosname || '北京协和医院'
+            hosname: data.content.find(h => String(h.hoscode) === String(hoscode))?.hosname || '中山大学附属第一医院'
           }
         });
       }
@@ -1259,7 +1345,7 @@ export default [
   {
     url: '/api/order/orderInfo/auth/submitOrder/:hoscode/:scheduleId/:patientId',
     method: 'post',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const hoscode = req.params?.hoscode;
       const scheduleId = req.params?.scheduleId;
       const patientId = req.params?.patientId;
@@ -1292,48 +1378,8 @@ export default [
   {
     url: '/api/user/patient/auth/findAll',
     method: 'get',
-    response: () => {
-      const patientList: any[] = [];
-
-      // 使用共享的就诊人数据，确保与订单数据一致
-      sharedPatientList.forEach((patient) => {
-        patientList.push({
-          id: patient.id,
-          createTime: Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")'),
-          updateTime: Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")'),
-          isDeleted: 0,
-          userId: Mock.mock('@integer(10000, 99999)'),
-          name: patient.name,
-          certificatesType: '10',
-          certificatesNo: Mock.mock(/^\d{17}[\dX]$/),
-          phone: Mock.mock(/^1[3-9]\d{9}$/),
-          sex: Mock.mock('@integer(0, 1)'),
-          birthdate: Mock.mock('@date("yyyy-MM-dd")'),
-          isMarry: Mock.mock('@integer(0, 1)'),
-          provinceCode: null,
-          cityCode: null,
-          districtCode: null,
-          address: Mock.mock('@county(true)'),
-          contactsName: Mock.mock('@cname'),
-          contactsCertificatesType: '10',
-          contactsCertificatesNo: Mock.mock(/^\d{17}[\dX]$/),
-          contactsPhone: Mock.mock(/^1[3-9]\d{9}$/),
-          isInsure: Mock.mock('@integer(0, 1)'),
-          cardNo: null,
-          status: '1',
-          param: {
-            certificatesTypeString: '身份证',
-            contactsCertificatesTypeString: '身份证',
-            cityString: null,
-            fullAddress: Mock.mock('@county(true)') + Mock.mock('@cword(5,10)') + '号',
-            districtString: null,
-            provinceString: null
-          }
-        });
-      });
-
-      console.log('[Mock] 就诊人列表响应:', { count: patientList.length, patients: sharedPatientList.map(p => p.name) });
-
+    response: (req: MockRequest) => {
+      console.log('[Mock] 就诊人列表请求, 当前数量:', patientList.length);
       return {
         code: 200,
         message: '成功',
@@ -1343,11 +1389,132 @@ export default [
     }
   },
 
+  // 9.1 新增就诊人
+  {
+    url: '/api/user/patient/auth/save',
+    method: 'post',
+    response: (req: MockRequest) => {
+      const newPatient = req.body;
+      console.log('[Mock] 新增就诊人:', newPatient);
+
+      // 生成新ID
+      const newId = Mock.mock('@integer(10000, 99999)');
+      const now = Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")');
+
+      // 构造新就诊人对象
+      const patientEntry = {
+        ...newPatient,
+        id: newId,
+        createTime: now,
+        updateTime: now,
+        isDeleted: 0,
+        userId: 10001,
+        status: '1', // 默认正常
+        param: {
+          certificatesTypeString: newPatient.certificatesType === '10' ? '身份证' : '户口本',
+          contactsCertificatesTypeString: newPatient.contactsCertificatesType === '10' ? '身份证' : '户口本',
+          cityString: newPatient.addressSelected ? newPatient.addressSelected[1] : '',
+          fullAddress: (newPatient.addressSelected ? newPatient.addressSelected.join(' ') : '') + ' ' + newPatient.address,
+          districtString: newPatient.addressSelected ? newPatient.addressSelected[2] : '',
+          provinceString: newPatient.addressSelected ? newPatient.addressSelected[0] : ''
+        }
+      };
+
+      patientList.push(patientEntry);
+
+      return {
+        code: 200,
+        message: '新增成功',
+        ok: true,
+        data: true
+      };
+    }
+  },
+
+  // 9.2 修改就诊人
+  {
+    url: '/api/user/patient/auth/update',
+    method: 'put',
+    response: (req: MockRequest) => {
+      const updateData = req.body;
+      console.log('[Mock] 修改就诊人:', updateData);
+
+      const index = patientList.findIndex(p => p.id === updateData.id);
+      if (index !== -1) {
+        // 更新字段
+        const now = Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")');
+        patientList[index] = {
+          ...patientList[index],
+          ...updateData,
+          updateTime: now,
+          param: {
+             ...patientList[index].param,
+             certificatesTypeString: updateData.certificatesType === '10' ? '身份证' : '户口本',
+             contactsCertificatesTypeString: updateData.contactsCertificatesType === '10' ? '身份证' : '户口本',
+          }
+        };
+        return {
+          code: 200,
+          message: '修改成功',
+          ok: true,
+          data: true
+        };
+      } else {
+        return {
+          code: 201,
+          message: '就诊人不存在',
+          ok: false,
+          data: false
+        };
+      }
+    }
+  },
+
+  // 9.3 删除就诊人
+  {
+    url: '/api/user/patient/auth/remove/:id',
+    method: 'delete',
+    response: (req: MockRequest) => {
+      // 兼容多种 ID 获取方式：params, query, 或从 URL 提取
+      let idStr = req.params?.id || req.query?.id;
+      
+      // 如果上述方式都拿不到，尝试从 URL 中手动截取
+      if (!idStr && req.url) {
+        const parts = req.url.split('/');
+        idStr = parts[parts.length - 1];
+      }
+
+      const id = parseInt(idStr);
+      console.log('[Mock] 删除就诊人 - 接收到的ID:', idStr, '解析后的ID:', id);
+
+      const index = patientList.findIndex(p => String(p.id) === String(id));
+      if (index !== -1) {
+        console.log('[Mock] 找到就诊人，执行删除。当前数量:', patientList.length);
+        patientList.splice(index, 1);
+        console.log('[Mock] 删除后数量:', patientList.length);
+        return {
+          code: 200,
+          message: '删除成功',
+          ok: true,
+          data: true
+        };
+      } else {
+        console.warn('[Mock] 未找到就诊人，删除失败。ID:', id);
+        return {
+          code: 201,
+          message: '删除失败，未找到该就诊人',
+          ok: false,
+          data: false
+        };
+      }
+    }
+  },
+
   // 10.1 获取订单状态列表
   {
     url: '/api/order/orderInfo/auth/getStatusList',
     method: 'get',
-    response: () => {
+    response: (req: MockRequest) => {
       const statusList = [
         { status: -1, comment: '已取消' },
         { status: 0, comment: '预约成功，待支付' },
@@ -1369,7 +1536,7 @@ export default [
   {
     url: '/api/order/orderInfo/auth/getOrderInfo/:orderId',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const orderId = req.params?.orderId;
       const reserveDate = Mock.mock('@date("yyyy-MM-dd")');
       const createTime = Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")');
@@ -1402,7 +1569,7 @@ export default [
           userId: 10001,
           outTradeNo: 'TK' + Mock.mock('@datetime("yyyyMMddHHmmss")') + Mock.mock('@integer(1000, 9999)'),
           hoscode: '10001',
-          hosname: '北京协和医院',
+          hosname: '中山大学附属第一医院',
           depcode: '200040879',
           depname: '神经内科',
           scheduleId: Mock.mock('@id'),
@@ -1428,7 +1595,7 @@ export default [
   {
     url: '/api/order/orderInfo/auth/:page/:limit',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       // 多种方式获取分页参数，确保兼容性
       let page = 1;
       let limit = 10;
@@ -1515,7 +1682,7 @@ export default [
   {
     url: '/api/order/orderInfo/auth/cancelOrder/:orderId',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const orderId = req.params?.orderId;
       console.log('Mock收到取消预约请求:', orderId);
       
@@ -1547,7 +1714,7 @@ export default [
   {
     url: '/api/order/orderInfo/auth/payOrder/:orderId',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const orderId = req.params?.orderId;
       console.log('Mock收到支付订单请求:', orderId);
       
@@ -1566,12 +1733,12 @@ export default [
 
   // 14. 获取短信验证码
   {
-    url: '/api/sms/send/:phone',
+    url: /\/api\/sms\/send\/(.+)/,
     method: 'get',
-    response: (req) => {
+    response: () => {
       return {
         code: 200,
-        message: '验证码发送成功',
+        message: '获取成功',
         ok: true,
         data: Mock.mock(/\d{6}/) // 生成6位随机数字验证码
       }
@@ -1582,14 +1749,14 @@ export default [
   {
     url: '/api/user/login',
     method: 'post',
-    response: (req) => {
+    response: () => {
       return {
         code: 200,
         message: '登录成功',
         ok: true,
         data: {
-          name: Mock.mock('@cname'),
-          token: Mock.mock('@guid')
+          name: fixedUser.name,
+          token: fixedUser.token
         }
       }
     }
@@ -1632,7 +1799,7 @@ export default [
   {
     url: '/api/order/weixin/createNative/:orderId',
     method: 'get',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const orderId = req.params?.orderId;
       console.log('Mock收到获取二维码请求:', orderId);
       
@@ -1657,27 +1824,54 @@ export default [
   {
     url: '/api/user/auth/getUserInfo',
     method: 'get',
-    response: () => {
+    response: (req: MockRequest) => {
       return {
         code: 200,
         message: '成功',
         ok: true,
         data: {
-          id: Mock.mock('@integer(10000, 99999)'),
-          createTime: Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")'),
-          updateTime: Mock.mock('@datetime("yyyy-MM-dd HH:mm:ss")'),
+          id: 10001,
+          createTime: '2023-01-01 00:00:00',
+          updateTime: '2023-01-01 00:00:00',
           isDeleted: 0,
-          param: {},
+          param: {
+            avatar: fixedUser.avatar
+          },
           openid: null,
-          certificatesType: Mock.mock('@pick(["身份证", "护照", "港澳通行证"])'),
-          certificatesNo: Mock.mock(/^\d{17}[\dX]$/),
+          certificatesType: fixedUser.certificatesType,
+          certificatesNo: fixedUser.certificatesNo,
           certificatesUrl: null,
-          nickName: Mock.mock('@cname'),
-          name: Mock.mock('@cname'),
-          phone: Mock.mock(/^1[3-9]\d{9}$/),
-          authStatus: Mock.mock('@integer(0, 2)'),
-          status: Mock.mock('@integer(0, 1)')
+          nickName: fixedUser.nickName,
+          name: fixedUser.name,
+          phone: fixedUser.phone,
+          authStatus: fixedUser.authStatus,
+          status: fixedUser.status
         }
+      };
+    }
+  },
+
+  // 17.1 修改当前用户信息
+  {
+    url: '/api/user/auth/updateUserInfo',
+    method: 'post',
+    response: (req: MockRequest) => {
+      const updateData = req.body;
+      console.log('[Mock] 修改用户信息:', updateData);
+
+      // 更新 fixedUser
+      if (updateData.name) fixedUser.name = updateData.name;
+      if (updateData.nickName) fixedUser.nickName = updateData.nickName;
+      if (updateData.certificatesType) fixedUser.certificatesType = updateData.certificatesType;
+      if (updateData.certificatesNo) fixedUser.certificatesNo = updateData.certificatesNo;
+      if (updateData.phone) fixedUser.phone = updateData.phone;
+      if (updateData.headImg) fixedUser.avatar = updateData.headImg;
+
+      return {
+        code: 200,
+        message: '修改成功',
+        ok: true,
+        data: true
       };
     }
   },
@@ -1686,7 +1880,7 @@ export default [
   {
     url: '/api/user/auth/userAuah',
     method: 'post',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const { name, certificatesType, certificatesNo, certificatesUrl } = req.body || {};
       console.log('Mock收到实名认证请求:', { name, certificatesType, certificatesNo, certificatesUrl });
       
@@ -1719,7 +1913,7 @@ export default [
   {
     url: '/api/oss/file/fileUpLoad',
     method: 'post',
-    response: (req) => {
+    response: (req: MockRequest) => {
       const fileHost = req.query?.fileHost;
       console.log('Mock收到文件上传请求, fileHost:', fileHost);
       

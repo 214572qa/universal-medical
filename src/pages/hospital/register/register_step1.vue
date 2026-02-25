@@ -119,7 +119,7 @@ import { onMounted, ref, computed } from 'vue';
 import { reqHospitalWork, reqHospitalDoctor } from '@/api/hospital';
 import { useRoute, useRouter } from 'vue-router';
 import type { Doctor, HospitalWorkData, DoctorResponseData, DocArr } from '@/api/hospital/type';
-import { useDebounce } from '@/composables/useRequest';
+import { useDebounce } from '@/utils/composables/useRequest';
 
 // 获取路由对象
 const $route = useRoute();

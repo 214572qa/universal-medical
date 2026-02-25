@@ -24,6 +24,13 @@ export default defineConfig(({ command }) => {
     define: {
       __VUE_PROD_DEVTOOLS__: JSON.stringify(true),
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "@/style/_variables.scss"; @import "@/style/_mixins.scss";`
+        }
+      }
+    },
     // server: {
     //   proxy: {
     //     '/api': {

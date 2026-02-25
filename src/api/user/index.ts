@@ -1,6 +1,6 @@
 //引入二次封装的axios
 import request from "@/utils/request";
-import type { AddOrUpdateUser,AllOrderStateResponseData,AllUserResponseData,UserOrderInfoResponseData,UserParams,CertationTypeResponseData,UserInfoResponseData,PayResult,QrCode,OrderResponseData,SubmitOrder, CityResponseData } from "./type";
+import type { AddOrUpdateUser,AllOrderStateResponseData,AllUserResponseData,UserOrderInfoResponseData,UserParams,CertationTypeResponseData,UserInfoResponseData,PayResult,QrCode,OrderResponseData,SubmitOrder, CityResponseData, UserUpdateParams, UploadResponse } from "./type";
 //枚举地址接口
 enum API {
     //提交订单，获取订单号码接口地址
@@ -15,6 +15,10 @@ enum API {
     PAYRESULT_URL = '/order/weixin/queryPayStatus/',
     //获取当前账号的用户信息
     USERINFO_URL = '/user/auth/getUserInfo',
+    // 修改当前账号的用户信息
+    UPDATE_USERINFO_URL = '/user/auth/updateUserInfo',
+    // 上传头像
+    UPLOAD_AVATAR_URL = '/file/upload',
     //获取证件类型的接口
     CERTIFICATIONTYPE_URL = '/cmn/dict/findByDictCode/',
     //用户认证的接口
@@ -46,6 +50,12 @@ export const reqQrCode = (orderId:string) => request.get<any,QrCode>(API.QRCODE_
 export const reqPayResult = (orderId:string) => request.get<any,PayResult>(API.PAYRESULT_URL+`${orderId}`);
 //获取当前用户信息的接口
 export const reqUserInfo = () => request.get<any,UserInfoResponseData>(API.USERINFO_URL);
+//修改当前用户信息的接口
+export const reqUpdateUserInfo = (data: UserUpdateParams) => request.post<any, any>(API.UPDATE_USERINFO_URL, data);
+//上传头像的接口
+export const reqUploadAvatar = (formData: FormData) => request.post<any, UploadResponse>(API.UPLOAD_AVATAR_URL, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+});
 //获取证件类型的方法
 export const reqCetationType = (CertificatesType:string) => request.get<any,CertationTypeResponseData>(API.CERTIFICATIONTYPE_URL+`${CertificatesType}`);
 //用户认证接口

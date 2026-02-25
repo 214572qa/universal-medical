@@ -1,0 +1,90 @@
+// ============================================
+// 医疗预约挂号平台样式变量 (Design Tokens)
+// ============================================
+
+// 1. Color System (色彩体系)
+// --------------------------------------------
+
+// Primary (主色调 - 海洋蓝)
+$color-primary: #3498db;
+$color-primary-light: #ebf5fb; // 100
+$color-primary-dark: #2980b9;  // 800
+$color-primary-hover: #5dade2; // 600
+
+// Secondary (辅助色 - 草绿色)
+$color-success: #2ecc71;
+$color-success-light: #eafaf1;
+$color-success-dark: #27ae60;
+
+// Functional (功能色)
+$color-warning: #f39c12;
+$color-danger: #e74c3c;
+$color-info: #17a2b8;
+
+// Neutral (中性色)
+$color-text-primary: #2c3e50;   // 主要文字
+$color-text-secondary: #5d6d7e; // 次要文字
+$color-text-muted: #95a5a6;     // 弱化文字/提示
+$color-text-light: #bdc3c7;     // 极浅文字
+
+$color-bg-body: #f8fafc;        // 页面背景 (浅灰蓝)
+$color-bg-card: #ffffff;        // 卡片背景
+$color-bg-hover: #f1f5f9;       // 悬停背景
+
+$color-border: #e2e8f0;         // 边框颜色
+$color-border-light: #f1f5f9;   // 极浅边框颜色
+
+// 2. Typography (排版)
+// --------------------------------------------
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+
+// 3. Spacing & Layout (间距与布局)
+// --------------------------------------------
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+
+$container-width: 1200px;
+$header-height: 72px;
+
+// 4. Effects (效果)
+// --------------------------------------------
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Radius
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+// Transitions
+$transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+// 5. Breakpoints (响应式断点)
+// --------------------------------------------
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+// 6. Tech Theme (科技主题色)
+// --------------------------------------------
+$color-tech-blue-dark: #1e3a8a;
+$color-tech-blue-light: #06b6d4;
+$gradient-tech: linear-gradient(135deg, $color-tech-blue-dark 0%, $color-tech-blue-light 100%);
+$shadow-tech-glow: 0 0 15px rgba(6, 182, 212, 0.5);

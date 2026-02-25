@@ -1,13 +1,15 @@
 <template>
   <div class="top">
     <div class="content">
-        <!-- 左侧 -->
+        <!-- 左侧: Logo & Title -->
         <div class="left" @click="goHome">
-            <img src="@/assets/logo.png" alt="">
-            <p>尚医通   预约挂号统一平台</p>
+            <div class="logo-wrapper">
+                <img src="@/assets/logo.png" alt="logo">
+            </div>
+            <p>通用医疗 预约挂号统一平台</p>
         </div>
 
-        <!-- 右侧 -->
+        <!-- 右侧: Help & User -->
         <div class="right">
             <p class="help">帮助中心</p>
             <!-- 如果没有用户名字：显示登录注册 -->
@@ -15,6 +17,9 @@
             <!-- 如果有用户名字，则显示用户名字与下拉菜单 -->
             <el-dropdown v-else>
                 <span class="el-dropdown-link">
+                    <div class="user-avatar">
+                        {{ userStore.userInfo.name[0] }}
+                    </div>
                     {{ userStore.userInfo.name }}
                     <el-icon class="el-icon--right">
                         <arrow-down />
@@ -60,7 +65,7 @@ const login = ()=>{
 
 //退出登录与注册按钮的回调
 const logout = ()=>{
-    //通知Pinia仓库清除用户相关的信息
+    //通知pinna仓库清除用户相关的信息
     userStore.logout();
     //编程式导航返回首页
     $router.push({path: '/home'});
@@ -74,45 +79,148 @@ const goUser = (path: string) => {
 </script>
 
 <style scoped lang="scss">
-.top{
+.top {
     position: fixed;
     z-index: 999;
     width: 100%;
-    height: 70px;
-    background: #fff;
+    height: $header-height;
+    background: $color-bg-card;
     display: flex;
     justify-content: center;
+    box-shadow: $shadow-md;
+    transition: box-shadow $transition-base;
     
-    .content{
-        width: 1200px;
-        height: 70px;
-        display: flex;
-        justify-content: space-between;
-        .left{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            img{
-                width: 50px;
-                height: 50px;
-                margin-right: 10px;
-            }
-            p{
-                font-size: 20px;
-                font-weight: 700;
-                color: #55a6fe;
-            }
-        }
-        .right{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            color: #bbb;
-            .help{
-                margin-right: 10px;
+    .content {
+        width: $container-width;
+        height: 100%;
+        @include flex-between;
+        padding: 0 $spacing-lg;
+        
+        .left {
+            @include flex-center;
+            cursor: pointer;
+            transition: opacity $transition-base;
+            
+            &:hover {
+                opacity: 0.8;
             }
             
+            .logo-wrapper {
+                width: 44px;
+                height: 44px;
+                background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+                border-radius: $radius-md;
+                @include flex-center;
+                margin-right: $spacing-md;
+                
+                img {
+                    width: 32px;
+                    height: 32px;
+                    object-fit: contain;
+                    filter: brightness(0) invert(1); // Make logo white if it's colored
+                }
+            }
+            
+            p {
+                font-size: $font-size-xl;
+                font-weight: 700;
+                color: $color-primary;
+                letter-spacing: -0.3px;
+            }
+        }
+        
+        .right {
+            @include flex-center;
+            font-size: $font-size-sm;
+            gap: $spacing-lg;
+            
+            .help {
+                color: $color-text-secondary;
+                cursor: pointer;
+                transition: color $transition-base;
+                font-weight: 500;
+                
+                &:hover {
+                    color: $color-primary;
+                }
+            }
+            
+            .login {
+                color: $color-primary;
+                cursor: pointer;
+                font-weight: 600;
+                padding: $spacing-sm $spacing-xl;
+                border: 1.5px solid $color-primary;
+                border-radius: $radius-full;
+                transition: all $transition-base;
+                
+                &:hover {
+                    background: $color-primary;
+                    color: white;
+                    transform: translateY(-1px);
+                    box-shadow: $shadow-sm;
+                }
+            }
+            
+            // 下拉菜单样式
+            ::v-deep(.el-dropdown) {
+                .el-dropdown-link {
+                    @include flex-center;
+                    gap: $spacing-sm;
+                    color: $color-text-primary;
+                    font-weight: 600;
+                    cursor: pointer;
+                    padding: $spacing-xs $spacing-sm;
+                    border-radius: $radius-md;
+                    transition: all $transition-base;
+                    
+                    &:hover {
+                        background: $color-bg-hover;
+                    }
+                    
+                    .user-avatar {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, $color-primary 0%, $color-success 100%);
+                        @include flex-center;
+                        color: white;
+                        font-weight: 600;
+                        font-size: $font-size-sm;
+                    }
+                    
+                    .el-icon {
+                        font-size: 12px;
+                        color: $color-text-muted;
+                        transition: transform $transition-base;
+                    }
+                    
+                    &:hover .el-icon {
+                        transform: rotate(180deg);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 下拉菜单全局样式调整 (需要放在全局或 :global 中)
+:global(.el-dropdown__menu) {
+    border-radius: $radius-lg !important;
+    box-shadow: $shadow-xl !important;
+    border: 1px solid $color-border !important;
+    padding: $spacing-xs !important;
+    
+    .el-dropdown-menu__item {
+        border-radius: $radius-md;
+        padding: $spacing-sm $spacing-md;
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+        transition: all $transition-fast;
+        
+        &:hover {
+            background: $color-primary-light !important;
+            color: $color-primary !important;
         }
     }
 }

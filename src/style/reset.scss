@@ -96,6 +96,7 @@ html [type="button"],
   outline: none;
   cursor: pointer;
   -webkit-appearance: button;
+  appearance: button;
 }
 
 button::-moz-focus-inner,
@@ -123,6 +124,7 @@ input {
 
 [type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
@@ -134,6 +136,7 @@ input {
 
 [type="search"] {
   -webkit-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-search-cancel-button,
   &::-webkit-search-decoration {
@@ -145,11 +148,13 @@ textarea {
   overflow: auto;
   resize: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 select {
   background-color: #fff;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 table {

@@ -8,14 +8,21 @@
 import { ElMessage } from 'element-plus';
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import type { HttpErrorConfigs } from '@/api/types/common';
+import { HttpStatus } from '@/utils/enums/httpEnum';
 // 引入用户相关的仓库
 import useUserStore from '@/store/modules/user';
 import router from '@/router';
 
+interface ErrorResponse {
+    message?: string;
+    code?: number;
+    data?: any;
+}
+
 // HTTP错误码配置表
 const HTTP_ERROR_CONFIGS: HttpErrorConfigs = {
-    400: { message: '请求参数错误' },
-    401: { 
+    [HttpStatus.BAD_REQUEST]: { message: '请求参数错误' },
+    [HttpStatus.UNAUTHORIZED]: { 
         message: 'Token过期，请重新登录',
         action: () => {
             // 清除用户信息并跳转登录
@@ -25,13 +32,13 @@ const HTTP_ERROR_CONFIGS: HttpErrorConfigs = {
             router.push('/home');
         }
     },
-    403: { message: '拒绝访问，权限不足' },
-    404: { message: '请求的资源不存在' },
-    408: { message: '请求超时' },
-    500: { message: '服务器内部错误' },
-    502: { message: '网关错误' },
-    503: { message: '服务不可用' },
-    504: { message: '网关超时' },
+    [HttpStatus.FORBIDDEN]: { message: '拒绝访问，权限不足' },
+    [HttpStatus.NOT_FOUND]: { message: '请求的资源不存在' },
+    [HttpStatus.REQUEST_TIMEOUT]: { message: '请求超时' },
+    [HttpStatus.INTERNAL_SERVER_ERROR]: { message: '服务器内部错误' },
+    [HttpStatus.BAD_GATEWAY]: { message: '网关错误' },
+    [HttpStatus.SERVICE_UNAVAILABLE]: { message: '服务不可用' },
+    [HttpStatus.GATEWAY_TIMEOUT]: { message: '网关超时' },
 };
 
 /**
@@ -44,7 +51,7 @@ const handleHttpError = (error: AxiosError): string => {
     const errorConfig = HTTP_ERROR_CONFIGS[status];
     
     // 如果服务器返回了详细的错误信息，优先使用
-    const serverMessage = (error.response?.data as any)?.message;
+    const serverMessage = (error.response?.data as ErrorResponse)?.message;
     const message = serverMessage || errorConfig?.message || error.message || '网络错误，请稍后重试';
     
     // 执行错误对应的action（如401跳转登录）
@@ -57,7 +64,7 @@ const handleHttpError = (error: AxiosError): string => {
 
 // 创建axios实例
 const request = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 10000, // 超时时间调整为10秒
     headers: {
         'Content-Type': 'application/json',

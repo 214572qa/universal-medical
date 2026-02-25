@@ -24,14 +24,12 @@ let userStore = useUserStore();
   .container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    min-height: 100vh;
+    
     .content{
-      margin:0 auto;
-      margin-top: 80px;
-      width: 1200px;
+      margin-top: 70px; // 顶部导航高度
+      width: 100%; // 全屏宽度
       min-height: 700px;
-      justify-content: center;
-        
     }
   }
 </style>

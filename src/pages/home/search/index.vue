@@ -1,7 +1,7 @@
 <template>
     <div class="search">
       <el-autocomplete @select="goDetail" clearable placeholder="请输入医院名称" v-model="hosname" :fetch-suggestions="fetchData" :trigger-on-focus="false"/>
-      <el-button type="primary" size="default" :icon = "Search">搜索</el-button>
+      <el-button type="primary" size="default" :icon="Search">搜索</el-button>
     </div>
 </template>
 
@@ -51,40 +51,120 @@ const goDetail = (item: any ) => {
 </script>
 
 <style scoped lang="scss">
-.search{
+.search {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 50px;
-    margin: 10px 0;
-    gap: 0; // 清除间距
+    // max-width is handled by parent
+    margin: 0; 
+    gap: 0;
     
     // 深度选择器，修改el-autocomplete组件的样式
-    ::v-deep(.el-autocomplete){
-      width: 400px;
-      
-      // 移除输入框的右边框，让按钮看起来是连在一起的
-      .el-input__wrapper {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-        border-right: none;
-      }
+    ::v-deep(.el-autocomplete) {
+        flex: 1;
+        
+        .el-input__wrapper {
+            border-top-left-radius: $radius-full;
+            border-bottom-left-radius: $radius-full;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+            
+            // Glassmorphism Style
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.15); // Blue tint shadow
+            
+            padding: 12px 24px;
+            height: 56px;
+            transition: all $transition-base;
+            
+            &:hover,
+            &.is-focus {
+                box-shadow: 0 0 0 2px $color-tech-blue-light inset, $shadow-tech-glow;
+                background: white;
+            }
+            
+            .el-input__inner {
+                font-size: 16px;
+                color: $color-text-primary;
+                
+                &::placeholder {
+                    color: $color-text-muted;
+                }
+            }
+            
+            .el-input__icon {
+                color: $color-tech-blue-dark;
+                font-size: 18px;
+            }
+        }
     }
     
     // 确保按钮和输入框对齐，并调整按钮样式
     ::v-deep(.el-button) {
-      height: 32px; // 统一高度，与输入框匹配
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      margin-left: 0; // 确保没有左边距
-      
-      // 添加一点左边框阴影效果，让连接更自然
-      box-shadow: -1px 0 0 0 var(--el-border-color) inset;
-      
-      &:hover {
-        box-shadow: -1px 0 0 0 var(--el-color-primary) inset;
-      }
+        height: 56px;
+        padding: 0 32px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: $radius-full;
+        border-bottom-right-radius: $radius-full;
+        margin-left: 0;
+        
+        // Tech Gradient
+        background: $gradient-tech;
+        border: none;
+        
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: all $transition-base;
+        box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2);
+        
+        &:hover {
+            transform: translateX(2px);
+            box-shadow: $shadow-tech-glow;
+            filter: brightness(1.1);
+        }
+        
+        &:active {
+            transform: translateX(0);
+        }
+        
+        .el-icon {
+            font-size: 18px;
+            margin-right: 6px;
+        }
     }
-  }
+}
+
+// 下拉建议列表样式
+:global(.el-autocomplete-suggestion) {
+    border-radius: $radius-md !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(6, 182, 212, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    
+    .el-autocomplete-suggestion__wrap {
+        padding: 8px 0;
+    }
+    
+    .el-autocomplete-suggestion__list {
+        li {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: $color-text-secondary;
+            transition: all 200ms ease;
+            
+            &:hover,
+            &.highlighted {
+                background: rgba(6, 182, 212, 0.1) !important;
+                color: $color-tech-blue-dark !important;
+            }
+        }
+    }
+}
 </style>

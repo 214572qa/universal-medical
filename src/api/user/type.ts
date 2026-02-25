@@ -67,6 +67,7 @@ export interface UserInfo {
     "updateTime": string,
     "isDeleted": number,
     "param": {
+        avatar?: string;
     },
     "openid": null,
     "certificatesType": string,
@@ -247,4 +248,20 @@ export interface AddOrUpdateUser {
     contactsCertificatesNo:string,
     contactsPhone:string,
     isInsure:number
+}
+
+//修改用户信息的ts类型
+export interface UserUpdateParams {
+    id?: number,
+    name?: string,
+    nickName?: string,
+    certificatesType?: string,
+    certificatesNo?: string,
+    phone?: string,
+    headImg?: string
+}
+
+//上传头像接口返回的数据ts类型
+export interface UploadResponse extends ResponseData {
+    data: string // 假设返回的是图片URL
 }
