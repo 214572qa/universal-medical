@@ -1,4 +1,3 @@
-// @ts-ignore
 import Mock from 'mockjs';
 
 // 定义 Mock 请求接口类型
@@ -562,7 +561,10 @@ const generateMockOrders = () => {
     const amountMap: Record<string, number> = { '主任医师': 500, '副主任医师': 300, '主治医师': 100 };
 
     // 使用共享的就诊人数据
-    const patient = sharedPatientList[i % sharedPatientList.length];
+    // 修改：优先使用 patientList，确保生成的订单与就诊人列表(下拉菜单)中的 ID 一致
+    // 这样前端按就诊人筛选时才能正确匹配
+    const sourceList = patientList && patientList.length > 0 ? patientList : sharedPatientList;
+    const patient = sourceList[i % sourceList.length];
 
     mockOrderList.push({
       id: 100000 + i, // 固定ID，从100000开始递增
@@ -577,7 +579,7 @@ const generateMockOrders = () => {
       reserveTime: i % 2 === 0 ? '上午' : '下午',
       patientId: patient.id,
       patientName: patient.name,
-      patientPhone: '1916126' + String(1000 + i).padStart(4, '0'),
+      patientPhone: patient.phone || '1916126' + String(1000 + i).padStart(4, '0'),
       hosRecordId: '13000019931017481' + (i % 10),
       number: (i % 50) + 1,
       fetchTime: `${reserveDate} 08:00:00`,
@@ -1346,22 +1348,47 @@ export default [
     url: '/api/order/orderInfo/auth/submitOrder/:hoscode/:scheduleId/:patientId',
     method: 'post',
     response: (req: MockRequest) => {
-      const hoscode = req.params?.hoscode;
-      const scheduleId = req.params?.scheduleId;
-      const patientId = req.params?.patientId;
+      let hoscode = req.params?.hoscode;
+      let scheduleId = req.params?.scheduleId;
+      let patientId = req.params?.patientId;
+
+      // Fallback: 如果 params 未解析成功，手动从 URL 解析
+      if (!scheduleId && req.url) {
+        const match = req.url.match(/\/submitOrder\/([^\/]+)\/([^\/]+)\/([^\/]+)/);
+        if (match) {
+           hoscode = match[1];
+           scheduleId = match[2];
+           patientId = match[3];
+        }
+      }
 
       console.log('Mock收到提交订单请求:', { hoscode, scheduleId, patientId });
 
-      // 模拟90%成功率
-      const isSuccess = Mock.mock('@boolean(9, 1, true)');
+      // 模拟并发锁定逻辑
+      // 假设每个排班只有一个号源，使用 scheduleId 作为锁的 key
+      // 如果内存中没有这个排班的锁信息，初始化为 1
+      if ((globalThis as any).scheduleLocks === undefined) {
+        (globalThis as any).scheduleLocks = {};
+      }
+      
+      const locks = (globalThis as any).scheduleLocks;
+      
+      // 初始化号源数量（模拟并发抢号场景，假设只剩 1 个号）
+      if (locks[scheduleId] === undefined) {
+        locks[scheduleId] = 1;
+      }
 
-      if (isSuccess) {
+      // 检查号源
+      if (locks[scheduleId] > 0) {
+        // 扣减号源
+        locks[scheduleId]--;
+        
         const orderId = Mock.mock('@integer(100000, 999999)');
         return {
           code: 200,
           message: '预约成功',
           ok: true,
-          data: orderId  // 直接返回订单ID（number类型）
+          data: orderId
         };
       } else {
         return {
@@ -1379,6 +1406,18 @@ export default [
     url: '/api/user/patient/auth/findAll',
     method: 'get',
     response: (req: MockRequest) => {
+      // 【新增逻辑】每次查询就诊人列表时，强制同步一次订单数据
+      // 确保即使 Mock 代码热更新导致 orderList 重置，也能根据最新的 patientList 更新订单
+      if (mockOrderList && mockOrderList.length > 0 && patientList && patientList.length > 0) {
+        mockOrderList.forEach(order => {
+          const patient = patientList.find(p => String(p.id) === String(order.patientId));
+          if (patient) {
+            order.patientName = patient.name;
+            order.patientPhone = patient.phone;
+          }
+        });
+      }
+
       console.log('[Mock] 就诊人列表请求, 当前数量:', patientList.length);
       return {
         code: 200,
@@ -1453,6 +1492,24 @@ export default [
              contactsCertificatesTypeString: updateData.contactsCertificatesType === '10' ? '身份证' : '户口本',
           }
         };
+
+        // 【新增逻辑】同步更新订单列表中的就诊人姓名和手机号
+        if (mockOrderList && mockOrderList.length > 0) {
+          let updatedCount = 0;
+          mockOrderList.forEach(order => {
+            if (String(order.patientId) === String(updateData.id)) {
+              if (updateData.name) order.patientName = updateData.name;
+              if (updateData.phone) order.patientPhone = updateData.phone;
+              updatedCount++;
+            }
+          });
+          if (updatedCount > 0) {
+            console.log(`[Mock] 已同步更新 ${updatedCount} 条订单的就诊人信息 (ID: ${updateData.id})`);
+          } else {
+            console.log(`[Mock] 未找到需要更新的订单 (ID: ${updateData.id})`);
+          }
+        }
+
         return {
           code: 200,
           message: '修改成功',

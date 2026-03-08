@@ -15,7 +15,7 @@ Nprogress.configure({ showSpinner: false });
 let whiteList = ["/home", "/hospital/register", "/hospital/detail", "/hospital/notice","/hospital/close","/hospital/search"];
 //添加相应的全局守卫
 //前置守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
     // 在守卫内部获取 store 实例，确保 Pinia 已经注册
     let userStore = useUserStore();
     //访问路由组件之前，进度条开始动
@@ -42,7 +42,7 @@ router.beforeEach((to, from, next) => {
 });
 
 //后置守卫
-router.afterEach((to, from) =>{
+router.afterEach((_to, _from) =>{
     //访问路由组件成功后，进度条结束
     Nprogress.done();
 });

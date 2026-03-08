@@ -7,7 +7,7 @@
  * 4. 支持请求取消
  */
 import { ref, type Ref, onUnmounted } from 'vue';
-import type { RequestState } from '@/api/types/common';
+// import type { RequestState } from '@/api/types/common';
 
 /**
  * 防抖函数

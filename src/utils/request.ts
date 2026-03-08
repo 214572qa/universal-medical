@@ -1,5 +1,8 @@
 /**
- * Axios 二次封装
+ * 为什么对Axios进行二次封装？
+ * 1. 统一管理请求和响应，避免重复代码
+ * 2. 统一处理错误，避免在每个接口都写错误处理逻辑
+ * 3. 统一处理token等公共参数，避免在每个接口都写token逻辑
  * 功能：
  * 1. 请求拦截器：携带token等公共参数
  * 2. 响应拦截器：统一处理响应数据和错误
@@ -7,7 +10,7 @@
  */
 import { ElMessage } from 'element-plus';
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
-import type { HttpErrorConfigs } from '@/api/types/common';
+import type { HttpErrorConfigs } from '@/api/types/common';// 引入HTTP错误码配置类型，用于统一处理HTTP错误码
 import { HttpStatus } from '@/utils/enums/httpEnum';
 // 引入用户相关的仓库
 import useUserStore from '@/store/modules/user';
@@ -64,10 +67,12 @@ const handleHttpError = (error: AxiosError): string => {
 
 // 创建axios实例
 const request = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    // 基础路径配置。举例：这里设置了 "/api"，当你调用 request.get("/user") 时，实际发出的请求是 "/api/user"
+    baseURL: import.meta.env.VITE_API_BASE_URL, // 这是一个 Vite 的环境变量语法，它会自动读取根目录下 .env.development 文件里的 VITE_API_BASE_URL 变量值
     timeout: 10000, // 超时时间调整为10秒
+    // 配置请求头，默认发送JSON格式数据
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json',// 默认发送JSON格式数据
     },
 });
 
@@ -77,7 +82,7 @@ request.interceptors.request.use(
         // 获取用户仓库
         const userStore = useUserStore();
         
-        // 携带token
+        // 携带token，作用：验证用户身份，确保只有授权用户才能访问受保护的资源
         if (userStore.userInfo.token) {
             config.headers.token = userStore.userInfo.token;
         }

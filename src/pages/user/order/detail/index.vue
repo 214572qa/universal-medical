@@ -144,7 +144,7 @@
         </el-card>
         <!-- 展示支付二维码的结构 -->
         <!-- 对话框通过v-model控制显示与隐藏的true：展示 false：隐藏 -->
-        <el-dialog @close="closeDialog " v-model="dialogVisible" title="微信支付" width="400px" class="pay-dialog">
+        <el-dialog @close="close " v-model="dialogVisible" title="微信支付" width="400px" class="pay-dialog">
             <!-- 支付的结构 -->
             <div class="qrcode">
                 <img :src="imgUrl" alt="">

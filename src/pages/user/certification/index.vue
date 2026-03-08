@@ -50,7 +50,7 @@
             </el-form-item>
             <el-form-item label="证件类型" prop="certificatesType">
                 <el-select placeholder="请选择证件类型" v-model="params.certificatesType">
-                    <el-option :label="item.name" :value="item.value" v-for="(item, index) in arrType"
+                    <el-option :label="item.name" :value="item.value" v-for="(item, _index) in arrType"
                         :key="item.id"></el-option>
                 </el-select>
             </el-form-item>
@@ -196,7 +196,7 @@ const submit = async () => {
 }
 
 //自定义验证规则的姓名方法
-const validatorName = (rule: any, value: any, callback: any) => {
+const validatorName = (_rule: any, value: any, callback: any) => {
     //rule:即为当前校验字段的校验规则对象
     const reg = /^(?:[\u4e00-\u9fa5]{2,4}|[\u4e00-\u9fa5]{2}·[\u4e00-\u9fa5]{2,8})$/;
     if (reg.test(value)) {
@@ -206,7 +206,7 @@ const validatorName = (rule: any, value: any, callback: any) => {
     }
 }
 //自定义验证规则的证件类型方法
-const validatorType = (rule: any, value: any, callback: any) => {
+const validatorType = (_rule: any, value: any, callback: any) => {
     //rule:即为当前校验字段的校验规则对象
     if (value == '10' || value == '20' || value == '30' || value == '40') {
         callback();
@@ -215,7 +215,7 @@ const validatorType = (rule: any, value: any, callback: any) => {
     }
 }
 //自定义验证规则的证件号码方法
-const validatorNo = (rule: any, value: any, callback: any) => {
+const validatorNo = (_rule: any, value: any, callback: any) => {
     //身份证的正则表达式（18位）
     const sfz = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
     //户口本的正则表达式（9位数字户号）
@@ -227,7 +227,7 @@ const validatorNo = (rule: any, value: any, callback: any) => {
     }
 }
 //证件照图片地址
-const validatorUrl = (rule: any, value: any, callback: any) => {
+const validatorUrl = (_rule: any, value: any, callback: any) => {
     if (value.length) {
         callback();
     } else {
